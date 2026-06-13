@@ -1,57 +1,47 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="utf-8">
 <title>Employee Attendance</title>
 </head>
-
 <body>
 
 <h1>Attendance Check-In</h1>
 
 <button onclick="sendAttendance()">Check In</button>
 
-<div id="status"></div>
+<p id="status"></p>
 
 <script>
 async function sendAttendance() {
 
 const status = document.getElementById("status");
 
-const params = new URLSearchParams(window.location.search);
+const empid = new URLSearchParams(window.location.search).get("empid");
 
-const empid = params.get("empid");
-const name = params.get("name");
-
-if (!empid || !name) {
-status.innerHTML = "Employee ID or Name not found";
+if (!empid) {
+status.innerHTML = "Employee ID not found";
 return;
 }
 
-navigator.geolocation.getCurrentPosition(async (position) => {
+navigator.geolocation.getCurrentPosition(async function(position){
 
 const lat = position.coords.latitude;
 const lon = position.coords.longitude;
 
-await fetch("https://kyawyetunuplink.app.n8n.cloud/webhook/attendance", {
-method: "POST",
-headers: {
-"Content-Type": "application/json"
-},
-body: JSON.stringify({
-employeeeid: empid,
-name: name,
-latitude: lat,
-longitude: lon,
-checkin_time: new Date().toLocaleString()
-})
-});
+await fetch(
+"https://kyawyetunuplink.app.n8n.cloud/webhook/attendance?empid="
++ empid +
+"&lat=" + lat +
+"&lon=" + lon
+);
 
-status.innerHTML = "Attendance submitted successfully";
+status.innerHTML = "Attendance Sent Successfully";
 
-}, () => {
-status.innerHTML = "Location permission denied";
+}, function(){
+
+status.innerHTML = "Location Permission Denied";
+
 });
 
 }

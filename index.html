@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Employee Attendance</title>
+</head>
+<body>
+<h1>Attendance Check-In</h1>
+<button onclick="sendAttendance()">Check In</button>
+<div id="status"></div>
+
+<script>
+async function sendAttendance(){
+const status=document.getElementById("status");
+const params=new URLSearchParams(window.location.search);
+const empid=params.get("empid");
+
+if(!empid){
+status.innerHTML="Employee ID not found";
+return;
+}
+
+navigator.geolocation.getCurrentPosition(async function(position){
+const lat=position.coords.latitude;
+const lon=position.coords.longitude;
+
+await fetch("https://kyawyetunuplink.app.n8n.cloud/webhook/attendance",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
+employeeid:empid,
+latitude:lat,
+longitude:lon,
+checkin_time:new Date().toLocaleString()
+})
+});
+
+status.innerHTML="Attendance submitted successfully";
+});
+}
+</script>
+</body>
+</html>
